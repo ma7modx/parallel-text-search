@@ -1,3 +1,4 @@
+#pragma once 
 #include <Windows.h>
 #include <omp.h>
 #include <iostream>
@@ -6,8 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "SearchNode.h"
 #include "SearchState.h"
-
 using namespace std; 
 string GetText(string file)
 {
@@ -19,7 +20,14 @@ string GetText(string file)
 		text = text + tmp;
 	return text;
 }
-
+void ShowMessage(int id, SearchNode foundState)
+{
+	printf("from thread number (%d) text found %d \n", id, foundState.nodeStates.size());
+	for (int i = 0; i < foundState.nodeStates.size(); ++i)
+	{
+		printf("%s ,", foundState.nodeStates[i].foundText);
+	}
+}
 int main()
 {
 	int id, threads ;
@@ -33,22 +41,22 @@ int main()
 	string searchText;
 	getline(cin, searchText);
 
-	vector<SearchState> saveStates;
+	vector< SearchNode > saveNodesStates;
 	cout << omp_get_max_threads() << endl;
 
 #pragma omp parallel private(id)
 	{
 		id = omp_get_thread_num();
 
-		SearchState foundState; 
+		SearchNode foundState = (id); 
 		if (id != omp_get_max_threads()-1)
-			foundState = SearchState(SearchState::Search(text.substr(id*segment, id*segment + segment), searchText), id);
+			foundState = SearchNode(	SearchNode::Search(text.substr(id*segment, id*segment + segment), searchText),	id);
 		else
-			foundState = SearchState(SearchState::Search(text.substr(id*segment, id*segment + segment + segmentRemain), searchText), id);
+			foundState = SearchNode(	SearchNode::Search(text.substr(id*segment, id*segment + segment + segmentRemain), searchText),	id);
 
-		saveStates.push_back(foundState);
+		saveNodesStates.push_back(foundState);
 
-		printf("from thread number (%d) text found %s \n", id , foundState.foundText);
+		ShowMessage(id , foundState);
 	}
 
 }

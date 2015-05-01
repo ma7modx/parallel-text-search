@@ -1,3 +1,4 @@
+#pragma once
 #include "SearchState.h"
 
 SearchState::SearchState()
@@ -6,30 +7,23 @@ SearchState::SearchState()
 }
 SearchState::SearchState(int found, int state)
 {
-	SearchState::found = found;
-	SearchState::state = state;
+	this->found = found;
+	this->state = state;
 }
-SearchState::SearchState(int found, int state, string foundText)
+SearchState::SearchState(int found, int state, std::string foundText)
 {
-	SearchState(found, state);
-	SearchState::foundText = foundText;
-}
-SearchState::SearchState(int found, int state, string foundText, int processID)
-{
-	SearchState(found, state, foundText);
-	SearchState::processID = processID;
-}
-SearchState::SearchState(SearchState state, int processID)
-{
-	*this = state;
-	SearchState::processID = processID;
+	//SearchState(found, state);
+
+	this->found = found;
+	this->state = state;
+	this->foundText = foundText;
 }
 
 // static region
 
 SearchState SearchState::null() { return SearchState(-1, -1, ""); }
 
-SearchState SearchState::SearchForward(int searchTextCounter, int textCounter, string text, string searchText)
+SearchState SearchState::SearchForward(int searchTextCounter, int textCounter, std::string text, std::string searchText)
 {
 	while (searchTextCounter < searchText.size())
 	{
@@ -47,7 +41,7 @@ SearchState SearchState::SearchForward(int searchTextCounter, int textCounter, s
 	return SearchState(-1, -1, "");
 }
 
-SearchState SearchState::SearchBackward(int searchTextCounter, int textCounter, string text, string searchText)
+SearchState SearchState::SearchBackward(int searchTextCounter, int textCounter, std::string text, std::string searchText)
 {
 	while (searchTextCounter >= 0)
 	{
@@ -63,39 +57,4 @@ SearchState SearchState::SearchBackward(int searchTextCounter, int textCounter, 
 	}
 
 	return SearchState(-1, -1, "");
-}
-
-SearchState SearchState::Search(string text, string searchText)
-{
-	SearchState ret;
-	if (text.find(searchText) != string::npos)
-		return ret = SearchState(1, text.find(searchText));
-
-	for (int textCounterForward = 0, textCounterBackward = text.size() - 1;
-		textCounterForward < text.size();
-		++textCounterForward, --textCounterBackward)	// forward search
-	{
-		// parallelize these both
-		int searchTextCounterForward = 0;
-		ret = SearchForward(searchTextCounterForward, textCounterForward, text, searchText);
-
-		int searchTextCounterBackward = searchText.size() - 1;
-		ret = SearchBackward(searchTextCounterBackward, textCounterBackward, text, searchText);
-	}
-
-	/*
-	if (ret == SearchState(-1, -1))
-	for (int textCounterBackward = text.size() - 1; textCounterBackward >= 0; --textCounterBackward)
-	{
-	int searchTextCounterBackward = searchText.size()-1;
-	ret = SearchBackward(searchTextCounterBackward, textCounterBackward, text, searchText);;
-	}
-	*/
-
-	return ret;
-}
-
-int SearchState::HandleState(SearchState state)
-{
-	return 0;
 }
