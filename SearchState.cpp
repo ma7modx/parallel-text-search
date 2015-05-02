@@ -5,23 +5,34 @@ SearchState::SearchState()
 {
 	*this = SearchState::null();
 }
-SearchState::SearchState(int found, int state)
+SearchState::SearchState(SearchStateResult state)
 {
-	this->found = found;
 	this->state = state;
 }
-SearchState::SearchState(int found, int state, std::string foundText)
+SearchState::SearchState(SearchStateResult state, std::string foundText)
 {
-	//SearchState(found, state);
-
-	this->found = found;
 	this->state = state;
 	this->foundText = foundText;
+}
+SearchState::SearchState(SearchStateResult state, std::string foundText, int position)
+{
+	this->state = state;
+	this->foundText = foundText;
+	this->position = position;
+}
+
+bool SearchState::operator==(SearchState L)
+{
+	return (state == L.state && foundText == L.foundText);
+}
+bool SearchState::operator!=(SearchState L)
+{
+	return !(*this == L);
 }
 
 // static region
 
-SearchState SearchState::null() { return SearchState(-1, -1, ""); }
+SearchState SearchState::null() { return SearchState(SearchStateResult::NULL_, "" , -1); }
 
 SearchState SearchState::SearchForward(int searchTextCounter, int textCounter, std::string text, std::string searchText)
 {
@@ -33,12 +44,13 @@ SearchState SearchState::SearchForward(int searchTextCounter, int textCounter, s
 		{
 			if (textCounter >= text.size())
 			{
-				return SearchState(0, 1, searchText.substr(0, searchTextCounter));	// sub last in the next process
+				return SearchState(SearchStateResult::SUB_BEGINNING, searchText.substr(0, searchTextCounter), searchTextCounter);	// sub last in the next process
 			}
+			//if (searchTextCounter >= searchText.size())	// won't be exist
 		}
 	}
 
-	return SearchState(-1, -1, "");
+	return SearchState(SearchStateResult::NULL_, "");
 }
 
 SearchState SearchState::SearchBackward(int searchTextCounter, int textCounter, std::string text, std::string searchText)
@@ -51,10 +63,10 @@ SearchState SearchState::SearchBackward(int searchTextCounter, int textCounter, 
 		{
 			if (textCounter < 0)
 			{
-				return SearchState(0, -1, searchText.substr(searchTextCounter, searchText.size() - 1));	// sub last in the next process
+				return SearchState(SearchStateResult::SUB_LAST, searchText.substr(searchTextCounter, searchText.size() - 1), searchTextCounter);	// sub last in the next process
 			}
 		}
 	}
 
-	return SearchState(-1, -1, "");
+	return SearchState(SearchStateResult::NULL_, "");
 }

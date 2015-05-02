@@ -22,24 +22,30 @@ std::vector<SearchState> SearchNode::Search(std::string text, std::string search
 	std::vector<SearchState> ret;
 	if (text.find(searchText) != std::string::npos)
 	{
-		SearchState tmp = SearchState(1, text.find(searchText));
+		SearchState tmp = SearchState(SearchStateResult::FOUND, searchText, text.find(searchText));
 		ret.push_back(tmp);
 		return ret;
 	}
 
 	if (searchText.find(text) != std::string::npos)	// if substring of the keyword found in the all text process
-		ret.push_back(SearchState(-1, searchText.find(text), text));
+		ret.push_back(SearchState(SearchStateResult::SUB_MIDDLE, text));
 
 	for (int textCounterForward = 0, textCounterBackward = text.size() - 1;
 		textCounterForward < text.size();
 		++textCounterForward, --textCounterBackward)	// forward search
 	{
+		SearchState tmpResult; 
+
 		// parallelize these both
 		int searchTextCounterForward = 0;
-		ret.push_back(SearchState::SearchForward(searchTextCounterForward, textCounterForward, text, searchText));
+		tmpResult = SearchState::SearchForward(searchTextCounterForward, textCounterForward, text, searchText);
+		if (tmpResult != SearchState::null())
+			ret.push_back(tmpResult);
 
 		int searchTextCounterBackward = searchText.size() - 1;
-		ret.push_back(SearchState::SearchBackward(searchTextCounterBackward, textCounterBackward, text, searchText));
+		tmpResult = SearchState::SearchBackward(searchTextCounterBackward, textCounterBackward, text, searchText);
+		if (tmpResult != SearchState::null())
+			ret.push_back(tmpResult);
 	}
 
 	return  ret;
