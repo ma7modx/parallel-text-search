@@ -17,5 +17,8 @@ public :
 	static std::vector<SearchState> Search(std::string text, std::string searchText);
 
 	static int CombineSearchNodes(SearchState state);
-
+private :
+	static std::vector<SearchState> FindCommonSubText(std::string text, std::string searchText);
+	static bool ParallelCondition(int id, int counter, int end, int remain);
+	static std::vector<SearchState> ConcatinateVectors(std::vector<SearchState> a, std::vector<SearchState> b);
 };

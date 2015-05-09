@@ -46,7 +46,6 @@ SearchState SearchState::SearchForward(int searchTextCounter, int textCounter, s
 			{
 				return SearchState(SearchStateResult::SUB_BEGINNING, searchText.substr(0, searchTextCounter), searchTextCounter);	// sub last in the next process
 			}
-			//if (searchTextCounter >= searchText.size())	// won't be exist
 		}
 	}
 
@@ -63,7 +62,7 @@ SearchState SearchState::SearchBackward(int searchTextCounter, int textCounter, 
 		{
 			if (textCounter < 0)
 			{
-				return SearchState(SearchStateResult::SUB_LAST, searchText.substr(searchTextCounter, searchText.size() - 1), searchTextCounter);	// sub last in the next process
+				return SearchState(SearchStateResult::SUB_LAST, searchText.substr(searchTextCounter+1, searchText.size()), searchTextCounter);	// sub last in the next process
 			}
 		}
 	}

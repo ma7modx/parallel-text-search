@@ -6,11 +6,23 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include "mpi.h"
 
 #include "SearchNode.h"
 #include "SearchState.h"
+
+#pragma warning(disable : 4996)
+
 using namespace std; 
 
+char* StringToCharArray(string s)
+{
+	char* str = new char [s.size() + 1];
+	for (int i = 0; i < s.size(); ++i)
+		*(str + i) = s[i];
+	*(str + s.size()) = '\0';
+	return str;
+}
 string GetText(string file)
 {
 	fstream fileStream;
@@ -34,7 +46,7 @@ void ShowMessage(int id, SearchNode foundState)
 	printf("from thread number (%d) text found %d \n", id, foundState.nodeStates.size());
 	for (int i = 0; i < foundState.nodeStates.size(); ++i)
 	{
-		//printf("%s ,", foundState.nodeStates[i].foundText);
+		printf("%s ,", StringToCharArray(foundState.nodeStates[i].foundText));
 		// why the hell it's not working!!! ~_~
 	}
 	printf("\n");
@@ -57,21 +69,24 @@ int main()
 	vector< SearchNode > saveNodesStates;
 	
 	int id;
-#pragma omp parallel private(id)
+//#pragma omp parallel private(id)
+	for (int id = 0; id < 4; ++id)
 	{
-		id = omp_get_thread_num();
+		//id = omp_get_thread_num();
 
 		SearchNode foundState = SearchNode(id);
-		if (id != omp_get_max_threads() - 1)
+		//if (id != omp_get_max_threads() - 1)
+		if (id != 4 - 1)
 		{
 			string subtext = text.substr(id*segment, segment);
-			printf("from thread %d .. %d \n %s \n", id, subtext.size(), subtext);
+			printf("from thread %d .. %d \n%s \n", id, subtext.size(), StringToCharArray(subtext));
+			//cout << subtext << endl;
 			foundState = SearchNode(SearchNode::Search(subtext, searchText), id);
 		}
 		else
 		{
 			string subtext = text.substr(id*segment, segment + segmentRemain);
-			printf("from thread %d .. %d \n %s \n", id, subtext.size(), subtext);
+			printf("from thread %d .. %d \n%s \n", id, subtext.size(), StringToCharArray(subtext));
 			foundState = SearchNode(SearchNode::Search(subtext, searchText), id);
 		}
 
